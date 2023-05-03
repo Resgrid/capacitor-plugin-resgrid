@@ -1,0 +1,153 @@
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/rounded_corners"
+    android:id="@+id/coordinator_layout">
+
+    <LinearLayout
+        android:id="@+id/detail_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@android:color/darker_gray"
+        android:gravity="start|top"
+        android:orientation="vertical"
+        android:visibility="visible"
+        app:behavior_hideable="true"
+        app:behavior_peekHeight="64dp"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+        tools:visibility="visible">
+
+        <LinearLayout
+            android:id="@+id/controls_box"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:gravity="start|top"
+            android:layout_weight="1"
+            app:layout_constraintBottom_toTopOf="@id/speaker_view"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/camera"
+                android:layout_width="@dimen/control_size"
+                android:layout_height="@dimen/control_size"
+                android:layout_weight="1"
+                android:background="?android:attr/selectableItemBackground"
+                android:padding="@dimen/control_padding"
+                android:src="@drawable/outline_videocam_24"
+                app:tint="@android:color/white" />
+
+            <ImageView
+                android:id="@+id/mic"
+                android:layout_width="@dimen/control_size"
+                android:layout_height="@dimen/control_size"
+                android:layout_weight="1"
+                android:background="?android:attr/selectableItemBackground"
+                android:padding="@dimen/control_padding"
+                android:src="@drawable/outline_mic_24"
+                app:tint="@android:color/white" />
+
+            <ImageView
+                android:id="@+id/flip_camera"
+                android:layout_width="@dimen/control_size"
+                android:layout_height="@dimen/control_size"
+                android:layout_weight="1"
+                android:background="?android:attr/selectableItemBackground"
+                android:padding="@dimen/control_padding"
+                android:src="@drawable/outline_flip_camera_android_24"
+                app:tint="@android:color/white" />
+
+            <ImageView
+                android:id="@+id/screen_share"
+                android:layout_width="@dimen/control_size"
+                android:layout_height="@dimen/control_size"
+                android:layout_weight="1"
+                android:background="?android:attr/selectableItemBackground"
+                android:padding="@dimen/control_padding"
+                android:src="@drawable/baseline_cast_24"
+                app:tint="@android:color/white" />
+
+            <ImageView
+                android:id="@+id/message"
+                android:layout_width="@dimen/control_size"
+                android:layout_height="@dimen/control_size"
+                android:layout_weight="1"
+                android:background="?android:attr/selectableItemBackground"
+                android:padding="@dimen/control_padding"
+                android:src="@drawable/baseline_chat_24"
+                app:tint="@android:color/white" />
+
+            <ImageView
+                android:id="@+id/exit"
+                android:layout_width="@dimen/control_size"
+                android:layout_height="@dimen/control_size"
+                android:layout_weight="1"
+                android:background="?android:attr/selectableItemBackground"
+                android:padding="@dimen/control_padding"
+                android:src="@drawable/ic_baseline_cancel_24"
+                app:tint="@android:color/white" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/controls_box2"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/audio_select"
+                android:layout_width="@dimen/control_size"
+                android:layout_height="@dimen/control_size"
+                android:layout_weight="1"
+                android:background="?android:attr/selectableItemBackground"
+                android:padding="@dimen/control_padding"
+                android:src="@drawable/volume_up_48px"
+                app:tint="@android:color/white" />
+
+            <ImageView
+                android:id="@+id/permissions"
+                android:layout_width="@dimen/control_size"
+                android:layout_height="@dimen/control_size"
+                android:layout_weight="1"
+                android:background="?android:attr/selectableItemBackground"
+                android:padding="@dimen/control_padding"
+                android:src="@drawable/account_cancel_outline"
+                app:tint="@android:color/white" />
+
+            <ImageView
+                android:id="@+id/debug_menu"
+                android:layout_width="@dimen/control_size"
+                android:layout_height="@dimen/control_size"
+                android:layout_weight="1"
+                android:background="?android:attr/selectableItemBackground"
+                android:padding="@dimen/control_padding"
+                android:src="@drawable/dots_horizontal_circle_outline"
+                app:tint="@android:color/white" />
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/speaker_view"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/no_video_background"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toTopOf="@id/audience_row"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+        </androidx.recyclerview.widget.RecyclerView>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/audience_row"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            app:layout_constraintBottom_toBottomOf="@id/controls_box"
+            android:visibility="invisible"
+             />
+
+    </LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="control_size">40dp</dimen>
+    <dimen name="control_padding">4dp</dimen>
+    <dimen name="identity_bar_padding">4dp</dimen>
+    <dimen name="bottom_sheet_corner_radius">24dp</dimen>
+    <dimen name="bottom_sheet_top_padding">16dp</dimen>
+</resources>

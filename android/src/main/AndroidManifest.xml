@@ -1,3 +1,20 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.resgrid.plugins.resgrid">
+
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-feature android:name="android.hardware.bluetooth" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+
+    <application>
+        <activity android:name="com.resgrid.plugins.resgrid.activites.CallActivity" />
+
+        <activity android:name="com.resgrid.plugins.resgrid.activites.AudioCallActivity"
+            android:theme="@style/Theme.AppCompat.Translucent"
+            android:screenOrientation="unspecified">
+        </activity>
+    </application>
 </manifest>

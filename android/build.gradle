@@ -6,18 +6,29 @@ ext {
 }
 
 buildscript {
+    ext.kotlinVersion = project.hasProperty('kotlinVersion') ? rootProject.ext.kotlinVersion : '1.7.10'
+    ext.coreKtx = project.hasProperty('coreKtx') ? rootProject.ext.coreKtx : '1.9.0'
+    ext.coroutinesVersion = project.hasProperty('coroutinesVersion') ? rootProject.ext.coroutinesVersion : '1.6.0'
+    ext.androidxLifecycleVersion = project.hasProperty('androidxLifecycleVersion') ? rootProject.ext.androidxLifecycleVersion : '2.5.1'
+    ext.groupieVersion = project.hasProperty('groupieVersion') ? rootProject.ext.groupieVersion : '2.9.0'
+
     repositories {
         google()
         mavenCentral()
+        maven { url "https://jitpack.io" }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:7.2.1'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     }
 }
 
 apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-parcelize'
 
 android {
+    namespace "com.resgrid.plugins.resgrid"
     compileSdkVersion project.hasProperty('compileSdkVersion') ? rootProject.ext.compileSdkVersion : 32
     defaultConfig {
         minSdkVersion project.hasProperty('minSdkVersion') ? rootProject.ext.minSdkVersion : 22
@@ -39,11 +50,15 @@ android {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
     }
+    buildFeatures {
+        viewBinding = true
+    }
 }
 
 repositories {
     google()
     mavenCentral()
+    maven { url "https://jitpack.io" }
 }
 
 
@@ -51,6 +66,24 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':capacitor-android')
     implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${coroutinesVersion}"
+    implementation 'com.google.android.material:material:1.6.1'
+    implementation 'androidx.appcompat:appcompat:1.4.2'
+    implementation "androidx.core:core-ktx:$coreKtx"
+    implementation "androidx.activity:activity-ktx:1.5.1"
+    implementation 'androidx.fragment:fragment-ktx:1.5.1'
+    implementation "androidx.viewpager2:viewpager2:1.0.0"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:${androidxLifecycleVersion}"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:${androidxLifecycleVersion}"
+    implementation "androidx.lifecycle:lifecycle-common-java8:${androidxLifecycleVersion}"
+    implementation 'com.google.android.material:material:1.6.1'
+    implementation "com.github.lisawray.groupie:groupie:${groupieVersion}"
+    implementation "com.github.lisawray.groupie:groupie-viewbinding:${groupieVersion}"
+    implementation "io.reactivex.rxjava2:rxjava:2.2.0"
+    implementation 'com.github.ajalt:timberkt:1.5.1'
+    implementation "io.livekit:livekit-android:1.1.9"
+    implementation 'com.google.code.gson:gson:2.10.1'
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
