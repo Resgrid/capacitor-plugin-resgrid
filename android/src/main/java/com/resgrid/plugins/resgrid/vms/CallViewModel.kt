@@ -1,16 +1,35 @@
 package com.resgrid.plugins.resgrid.vms
 
+import android.app.Activity
 import android.app.Application
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.le.ScanFilter
+import android.bluetooth.le.ScanSettings
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
+import android.media.MediaPlayer
 import android.media.projection.MediaProjectionManager
 import android.os.Build
+import android.os.ParcelUuid
+import android.preference.PreferenceManager
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.github.ajalt.timberkt.Timber
+import com.resgrid.plugins.resgrid.R
+import com.resgrid.plugins.resgrid.api.VoiceApi
+import com.resgrid.plugins.resgrid.api.VoiceApiService
+import com.resgrid.plugins.resgrid.bluetooth.Device
+import com.resgrid.plugins.resgrid.bluetooth.DeviceScanner
+import com.resgrid.plugins.resgrid.bluetooth.DisplayStrings
+import com.resgrid.plugins.resgrid.data.*
 import com.resgrid.plugins.resgrid.models.ConfigData
 import com.resgrid.plugins.resgrid.models.RoomData
+import com.resgrid.plugins.resgrid.service.ForegroundService
 import io.livekit.android.LiveKit
 import io.livekit.android.LiveKitOverrides
 import io.livekit.android.RoomOptions
@@ -25,14 +44,26 @@ import io.livekit.android.room.track.CameraPosition
 import io.livekit.android.room.track.LocalScreencastVideoTrack
 import io.livekit.android.room.track.LocalVideoTrack
 import io.livekit.android.room.track.Track
-import com.resgrid.plugins.resgrid.service.ForegroundService
 import io.livekit.android.util.flow
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import java.util.*
+
 
 class CallViewModel(
-        application: Application
+        application: Application,
+        //private val preferences: PreferenceDataStoreHelper = PreferenceDataStoreHelper(application),
+        //private val dataStore: DataStoreRepository = DataStoreRepository(application)
 ) : AndroidViewModel(application) {
+
+    var bluetoothAdapter: BluetoothAdapter? = null
+    private var stateReceiver: BroadcastReceiver? = null
+    private var deviceScanner: DeviceScanner? = null
+    private var displayStrings: DisplayStrings? = null
+    private var newDevice: Device? = null
+    private var startTransmittingSound: MediaPlayer? = null
+    private var stopTransmittingSound: MediaPlayer? = null
 
     var configData: ConfigData? = null
     val selectedRoom = MutableLiveData<RoomData>(null)
@@ -85,7 +116,14 @@ class CallViewModel(
     private val mutablePermissionAllowed = MutableStateFlow(true)
     val permissionAllowed = mutablePermissionAllowed.hide()
 
+    val preferences = Preferences(application.applicationContext, PreferencesConfiguration.DEFAULTS!!);
+
+    private var voiceApi: VoiceApiService? = null
+
     init {
+        startTransmittingSound = MediaPlayer.create(getApplication(), R.raw.start_transmit)
+        stopTransmittingSound = MediaPlayer.create(getApplication(), R.raw.stop_transmit)
+
         viewModelScope.launch {
             // Collect any errors.
             launch {
@@ -121,9 +159,8 @@ class CallViewModel(
                 }
             }
 
-            configData?.url?.let { configData!!.rooms[0].token?.let { it1 -> connectToRoom(it, it1) } }
+            //configData?.url?.let { configData!!.rooms[0].token?.let { it1 -> connectToRoom(it, it1) } }
         }
-
 
         // Start a foreground service to keep the call from being interrupted if the
         // app goes into the background.
@@ -133,25 +170,33 @@ class CallViewModel(
         } else {
             application.startService(foregroundServiceIntent)
         }
+
+        voiceApi = VoiceApiService(configData!!);
     }
 
-    private suspend fun connectToRoom(url: String, token: String) {
+    suspend fun connectToRoom() {
         try {
-            room.connect(
-                url = url,
-                token = token,
-            )
+            if (canConnectToVoice()) {
+                configData?.url?.let {
+                    selectedRoom.value?.token?.let { it1 ->
+                        room.connect(
+                            url = it,
+                            token = it1,
+                        )
+                    }
+                }
 
-            // Create and publish audio/video tracks
-            val localParticipant = room.localParticipant
-            localParticipant.setMicrophoneEnabled(true)
-            mutableMicEnabled.postValue(localParticipant.isMicrophoneEnabled())
+                // Create and publish audio/video tracks
+                val localParticipant = room.localParticipant
+                localParticipant.setMicrophoneEnabled(true)
+                mutableMicEnabled.postValue(localParticipant.isMicrophoneEnabled())
 
-            localParticipant.setCameraEnabled(true)
-            mutableCameraEnabled.postValue(localParticipant.isCameraEnabled())
+                localParticipant.setCameraEnabled(true)
+                mutableCameraEnabled.postValue(localParticipant.isCameraEnabled())
 
-            // Update the speaker
-            handlePrimarySpeaker(emptyList(), emptyList(), room)
+                // Update the speaker
+                handlePrimarySpeaker(emptyList(), emptyList(), room)
+            }
         } catch (e: Throwable) {
             mutableError.value = e
         }
@@ -280,6 +325,136 @@ class CallViewModel(
         room.localParticipant.setTrackSubscriptionPermissions(mutablePermissionAllowed.value)
     }
 
+    fun connectToHeadset(context: android.content.Context) {
+        setDisplayStrings()
+
+        if (bluetoothAdapter != null) {
+            val filters: ArrayList<ScanFilter> = ArrayList()
+            val filter = ScanFilter.Builder()
+            filter.setServiceUuid(ParcelUuid.fromString("127FACE1-CB21-11E5-93D0-0002A5D5C51B"))
+            filters.add(filter.build())
+
+            val scanSettings = ScanSettings.Builder()
+            try {
+                scanSettings.setScanMode(ScanSettings.SCAN_MODE_BALANCED)
+            } catch (e: IllegalArgumentException) {
+            }
+
+            //viewModelScope.launch {
+                //val prefs = dataStore.getData()
+                val headsetDeviceAddress = preferences.get("HEADSET_DEVICE_ADDRESS")
+
+                if (headsetDeviceAddress.isNullOrBlank()) {
+                    deviceScanner = DeviceScanner(
+                        context,
+                        bluetoothAdapter!!,
+                        scanDuration = 30000,
+                        displayStrings = displayStrings!!,
+                        showDialog = true,
+                    )
+                    deviceScanner?.startScanning(
+                        filters, scanSettings.build(), false, "", { scanResponse ->
+                            run {
+                                if (scanResponse.success) {
+                                    if (scanResponse.device != null) {
+                                        //viewModelScope.launch {
+                                        //    dataStore.saveToDataStore(scanResponse.device.address)
+                                        //}
+                                        preferences.set("HEADSET_DEVICE_ADDRESS", scanResponse.device.address)
+                                        connectAndMonitorHeadset(context, scanResponse.device.address)
+                                    }
+                                }
+                            }
+                        }, null
+                    )
+                } else {
+                    connectAndMonitorHeadset(context, headsetDeviceAddress)
+                }
+            //}
+        }
+    }
+
+    private fun connectAndMonitorHeadset(context: Context, deviceAddress: String) {
+
+        if (newDevice != null && newDevice!!.isConnected())
+        {
+            newDevice!!.disconnect(10000) { response ->
+                run {
+                    if (response.success) {
+                        newDevice = null
+                    }
+                }
+            }
+        }
+
+        newDevice = Device(
+            context, bluetoothAdapter!!, deviceAddress//scanResponse.device.address
+        ) {
+            onDisconnect(deviceAddress)
+        }
+
+        newDevice!!.connect(10000) { response ->
+            run {
+                if (response.success) {
+                    newDevice!!.setNotifications(UUID.fromString("127FACE1-CB21-11E5-93D0-0002A5D5C51B"), UUID.fromString("127FBEEF-CB21-11E5-93D0-0002A5D5C51B"), true, { response ->
+                        run {
+                            if (response != null) {
+                                if (response.value.trim() == "00") {
+                                    stopTransmittingSound?.start()
+                                    stopTransmittingSound?.seekTo(0)
+
+                                    setMicEnabled(false)
+                                } else if (response.value.trim() == "01") {
+                                    startTransmittingSound?.start()
+                                    startTransmittingSound?.seekTo(0)
+
+                                    setMicEnabled(true)
+                                }
+                            }
+                        }
+                    }, { response ->
+
+                    })
+                }
+            }
+        }
+    }
+
+    private fun setDisplayStrings() {
+        displayStrings = DisplayStrings(
+            "Scanning...",
+            "Cancel",
+            "Available devices",
+            "No device found"
+        )
+    }
+
+    fun disconnectHeadset() {
+        if (newDevice != null){
+            newDevice!!.disconnect(10000){ response ->
+                run {
+                    newDevice = null
+                    preferences.clear()
+                }
+            }
+        }
+    }
+
+    private suspend fun canConnectToVoice(): Boolean {
+        run {
+                val response = voiceApi?.getCanConnectToVoiceSession()
+
+                if (response != null && response.Data != null && response.Data.CanConnect)
+                    return true;
+
+                return false
+            }
+    }
+
+    private fun onDisconnect(deviceId: String) {
+
+    }
+
     // Debug functions
     fun simulateMigration() {
         room.sendSimulateScenario(Room.SimulateScenario.MIGRATION)
@@ -294,9 +469,46 @@ class CallViewModel(
         mutablePrimarySpeaker.value = null
         room.disconnect()
         viewModelScope.launch {
-            configData?.url?.let { configData!!.rooms[0].token?.let { it1 -> connectToRoom(it, it1) } }
+            //configData?.url?.let { configData!!.rooms[0].token?.let { it1 -> connectToRoom(it, it1) } }
+            connectToRoom()
         }
     }
+
+    fun disconnect() {
+        mutablePrimarySpeaker.value = null
+        room.disconnect()
+    }
+}
+
+object PreferenceHelper {
+
+    val HEADSET_DEVICE_ADDRESS = "HEADSET_DEVICE_ADDRESS"
+
+    fun defaultPreference(context: Context): SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+
+    fun customPreference(context: Context, name: String): SharedPreferences = context.getSharedPreferences(name, Context.MODE_PRIVATE)
+
+    inline fun SharedPreferences.editMe(operation: (SharedPreferences.Editor) -> Unit) {
+        val editMe = edit()
+        operation(editMe)
+        editMe.apply()
+    }
+
+    var SharedPreferences.headsetDeviceAddress
+        get() = getString(HEADSET_DEVICE_ADDRESS, "")
+        set(value) {
+            editMe {
+                it.putString(HEADSET_DEVICE_ADDRESS, value)
+            }
+        }
+
+    var SharedPreferences.clearValues
+        get() = { }
+        set(value) {
+            editMe {
+                it.clear()
+            }
+        }
 }
 
 private fun <T> LiveData<T>.hide(): LiveData<T> = this

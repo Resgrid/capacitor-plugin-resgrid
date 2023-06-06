@@ -1,12 +1,10 @@
 package com.resgrid.plugins.resgrid.activites
 
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.fragment.app.FragmentManager
+import android.view.*
 import androidx.fragment.app.FragmentTransaction
 import com.getcapacitor.Logger
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -17,8 +15,37 @@ import com.resgrid.plugins.resgrid.models.ConfigData
 
 
 open class RoundedBottomSheetDialogFragment() : BottomSheetDialogFragment() {
+    protected lateinit var dialog : BottomSheetDialog
+
     override fun getTheme(): Int = R.style.BottomSheetDialogTheme
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog = BottomSheetDialog(requireContext(), theme)
+    //override fun onCreateDialog(savedInstanceState: Bundle?): Dialog = BottomSheetDialog(requireContext(), theme)
+
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        //dialog = super.onCreateDialog(savedInstanceState) as BottomSheetDialog
+        dialog = BottomSheetDialog(requireContext(), theme)
+        return dialog
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    override fun onStart() {
+        super.onStart()
+        isCancelable = false
+        dialog!!.setCanceledOnTouchOutside(false)
+        val outsideView = dialog.findViewById<View>(com.google.android.material.R.id.touch_outside)//requireDialog().findViewById<View>(com.google.android.material.R.id.touch_outside)
+        if (outsideView != null) {
+            outsideView.setOnTouchListener { v: View?, event: MotionEvent ->
+                if (event.action == MotionEvent.ACTION_UP) dialog!!.hide()
+                false
+            }
+        }
+    }
+
+    fun reShow() {
+        if (dialog != null) {
+            dialog!!.show()
+        }
+    }
 }
 
 class BottomAudioView(private val configData: ConfigData, private val audioView: AudioCallFragment): RoundedBottomSheetDialogFragment() {

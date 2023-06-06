@@ -84,6 +84,33 @@ dependencies {
     implementation 'com.github.ajalt:timberkt:1.5.1'
     implementation "io.livekit:livekit-android:1.1.9"
     implementation 'com.google.code.gson:gson:2.10.1'
+    implementation "androidx.datastore:datastore-preferences:1.0.0"
+
+    //https://github.com/google/gson
+    implementation 'com.google.code.gson:gson:2.8.5'
+    //https://github.com/square/okhttp
+    implementation 'com.squareup.okhttp3:okhttp:3.10.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.9.0'
+    // https://github.com/square/retrofit
+    implementation 'com.squareup.retrofit2:retrofit:2.3.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
+    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
+    implementation 'com.squareup.retrofit2:converter-scalars:2.3.0'
+    // https://github.com/ReactiveX/RxAndroid
+    implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    implementation 'io.reactivex.rxjava2:rxjava:2.1.7'
+
+    //def retrofit_version = "2.9.0"
+    //implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+    //implementation "com.squareup.retrofit2:converter-moshi:$retrofit_version"
+
+    //implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    //implementation 'com.google.code.gson:gson:2.10'
+    //implementation 'com.squareup.retrofit2:converter-gson:2.5.0'
+
+    //def moshi_version = "1.12.0"
+    //implementation "com.squareup.moshi:moshi:$moshi_version"
+    //implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"

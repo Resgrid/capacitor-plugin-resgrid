@@ -83,15 +83,17 @@ requestPermissions() => Promise<PermissionStatus>
 
 #### ResgridPluginStartOptions
 
-| Prop                 | Type                              | Description                                       |
-| -------------------- | --------------------------------- | ------------------------------------------------- |
-| **`token`**          | <code>string</code>               |                                                   |
-| **`url`**            | <code>string</code>               |                                                   |
-| **`type`**           | <code>number</code>               | Type of headset to use. 0 = Audio Only, 1 = Video |
-| **`title`**          | <code>string</code>               |                                                   |
-| **`defaultMic`**     | <code>string</code>               |                                                   |
-| **`defaultSpeaker`** | <code>string</code>               |                                                   |
-| **`rooms`**          | <code>ResgridPluginRooms[]</code> |                                                   |
+| Prop                            | Type                              | Description                                       |
+| ------------------------------- | --------------------------------- | ------------------------------------------------- |
+| **`token`**                     | <code>string</code>               |                                                   |
+| **`url`**                       | <code>string</code>               |                                                   |
+| **`type`**                      | <code>number</code>               | Type of headset to use. 0 = Audio Only, 1 = Video |
+| **`title`**                     | <code>string</code>               |                                                   |
+| **`defaultMic`**                | <code>string</code>               |                                                   |
+| **`defaultSpeaker`**            | <code>string</code>               |                                                   |
+| **`apiUrl`**                    | <code>string</code>               |                                                   |
+| **`canConnectToVoiceApiToken`** | <code>string</code>               |                                                   |
+| **`rooms`**                     | <code>ResgridPluginRooms[]</code> |                                                   |
 
 
 #### ResgridPluginRooms

@@ -24,6 +24,10 @@ export interface ResgridPluginStartOptions {
 
   defaultSpeaker: string;
 
+  apiUrl: string;
+
+  canConnectToVoiceApiToken: string;
+
   rooms: ResgridPluginRooms[];
 }
 

@@ -104,6 +104,8 @@ window.customElements.define(
             title: 'test',
             defaultMic: '',
             defaultSpeaker: '',
+            apiUrl: '',
+            canConnectToVoiceApiToken: '',
             rooms: [{name: 'test', id: 'test', token:''}]
           };
           Resgrid.start(options);
