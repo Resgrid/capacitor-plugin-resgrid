@@ -118,8 +118,6 @@ class CallViewModel(
 
     val preferences = Preferences(application.applicationContext, PreferencesConfiguration.DEFAULTS!!);
 
-    private var voiceApi: VoiceApiService? = null
-
     init {
         startTransmittingSound = MediaPlayer.create(getApplication(), R.raw.start_transmit)
         stopTransmittingSound = MediaPlayer.create(getApplication(), R.raw.stop_transmit)
@@ -171,12 +169,11 @@ class CallViewModel(
             application.startService(foregroundServiceIntent)
         }
 
-        voiceApi = VoiceApiService(configData!!);
+        //voiceApi = VoiceApiService(configData!!);
     }
 
     suspend fun connectToRoom() {
         try {
-            if (canConnectToVoice()) {
                 configData?.url?.let {
                     selectedRoom.value?.token?.let { it1 ->
                         room.connect(
@@ -196,7 +193,6 @@ class CallViewModel(
 
                 // Update the speaker
                 handlePrimarySpeaker(emptyList(), emptyList(), room)
-            }
         } catch (e: Throwable) {
             mutableError.value = e
         }
@@ -438,17 +434,6 @@ class CallViewModel(
                 }
             }
         }
-    }
-
-    private suspend fun canConnectToVoice(): Boolean {
-        run {
-                val response = voiceApi?.getCanConnectToVoiceSession()
-
-                if (response != null && response.Data != null && response.Data.CanConnect)
-                    return true;
-
-                return false
-            }
     }
 
     private fun onDisconnect(deviceId: String) {

@@ -2,6 +2,7 @@ package com.resgrid.plugins.resgrid.activites
 
 import android.R.attr.button
 import android.app.Activity
+import android.app.AlertDialog
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.content.Context
@@ -23,6 +24,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
 import com.resgrid.plugins.resgrid.ParticipantItem
 import com.resgrid.plugins.resgrid.R
+import com.resgrid.plugins.resgrid.api.VoiceApiService
 import com.resgrid.plugins.resgrid.databinding.AudioCallActivityBinding
 import com.resgrid.plugins.resgrid.dialog.showBluetoothDeviceDialogFrag
 import com.resgrid.plugins.resgrid.dialog.showDebugMenuDialog
@@ -53,6 +55,7 @@ class AudioCallFragment: Fragment(R.layout.audio_call_activity)
     private val speakerAdapter: GroupieAdapter = GroupieAdapter()
     private var startTransmittingSound: MediaPlayer? = null
     private var stopTransmittingSound: MediaPlayer? = null
+    private var voiceApi: VoiceApiService? = null
 
     lateinit var binding: AudioCallActivityBinding
     private val screenCaptureIntentLauncher =
@@ -128,13 +131,20 @@ class AudioCallFragment: Fragment(R.layout.audio_call_activity)
         val connectButton = view.findViewById(R.id.connect_button) as Button
         connectButton.setOnClickListener {
             if (viewModel.selectedRoom.value != defaultRoom) {
-                connect(view)
+                lifecycleScope.launchWhenCreated {
+                    if (canConnectToVoice()) {
+                        connect(view)
 
-                val selectionContainer = view.findViewById(R.id.selection_container) as RelativeLayout
-                val roomContainer = view.findViewById(R.id.room_container) as LinearLayout
+                        val selectionContainer =
+                            view.findViewById(R.id.selection_container) as RelativeLayout
+                        val roomContainer = view.findViewById(R.id.room_container) as LinearLayout
 
-                selectionContainer.isVisible = false;
-                roomContainer.isVisible = true;
+                        selectionContainer.isVisible = false;
+                        roomContainer.isVisible = true;
+                    } else {
+                        showNoAvailableSeatsDialog(view.context, context!!)
+                    }
+                }
             }
         }
 
@@ -238,14 +248,30 @@ class AudioCallFragment: Fragment(R.layout.audio_call_activity)
         //binding.debugMenu.setOnClickListener {
         //    showDebugMenuDialogFrag(viewModel)
         //}
+                val roomName = view.findViewById(R.id.text_active_room) as TextView
 
-        val roomName = view.findViewById(R.id.text_active_room) as TextView
-        roomName.setText("Connected to " + (viewModel.selectedRoom.value?.name ?: "Connected"));
+                roomName.setText(
+                    "Connected to " + (viewModel.selectedRoom.value?.name ?: "Connected")
+                );
 
-        lifecycleScope.launchWhenCreated {
-            viewModel.connectToRoom()
-            viewModel.setMicEnabled(false)
-            viewModel.setCameraEnabled(false)
+                lifecycleScope.launchWhenCreated {
+                    viewModel.connectToRoom()
+                    viewModel.setMicEnabled(false)
+                    viewModel.setCameraEnabled(false)
+                }
+    }
+
+    private suspend fun canConnectToVoice(): Boolean {
+        run {
+            if (voiceApi == null)
+                voiceApi = VoiceApiService(viewModel.configData!!);
+
+            val response = voiceApi?.getCanConnectToVoiceSession()
+
+            if (response != null && response.Data != null && response.Data.CanConnect)
+                return true;
+
+            return false
         }
     }
 
@@ -285,6 +311,21 @@ class AudioCallFragment: Fragment(R.layout.audio_call_activity)
         //val mediaProjectionManager =
        //     getSystemService(MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         //screenCaptureIntentLauncher.launch(mediaProjectionManager.createScreenCaptureIntent())
+    }
+
+    private fun showNoAvailableSeatsDialog(context: Context, applicationContext: Context) {
+        val builder = AlertDialog.Builder(context)
+        builder.setTitle("Unable to Connect")
+        builder.setMessage("There are no available seats to connect to a voice session. Please try again later.")
+
+        //builder.setPositiveButton("OK", DialogInterface.OnClickListener(function = x))
+
+        builder.setPositiveButton("OK") { dialog, which ->
+            //Toast.makeText(applicationContext,
+            //    android.R.string.yes, Toast.LENGTH_SHORT).show()
+        }
+
+        builder.show()
     }
 
     override fun onDestroy() {
