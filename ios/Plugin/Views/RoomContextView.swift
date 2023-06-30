@@ -70,8 +70,35 @@ struct RoomContextView: View {
                             roomCtx.token = selectedChannel.token
 
                             Task {
-                                let room = try await roomCtx.connect()
-                                appCtx.connectionHistory.update(room: room)
+                            let api = ApiVoiceRequest(config: viewModel)
+                            self.viewModel.unableToConnect = false
+                            let data = await api.canUserConnectToSession();
+
+                           // api.canUserConnectToSession { (data) in
+                                if (data != nil && data.Data != nil && (data.Data!.CanConnect != nil && data.Data!.CanConnect!)) {
+                                    Task {
+                                        let room = try await roomCtx.connect()
+                                        appCtx.connectionHistory.update(room: room)
+                                    }
+                                } else {
+                                    self.viewModel.unableToConnect = true
+                                }
+                            //}
+
+                            /*api.canUserConnectToSession { (sessionResult) in
+                                    switch sessionResult {
+                                    case .success(let data):
+                                        if (data != nil && data.Data != nil && data.Data.CanConnect) {
+                                            Task {
+                                                let room = try await roomCtx.connect()
+                                                appCtx.connectionHistory.update(room: room)
+                                            }
+                                        }
+                                    case .failure(let error):
+                                        print(error.localizedDescription)
+                                    }
+                                }*/
+
                             }
                         }
                         Button(action: action, label: {
@@ -145,6 +172,11 @@ struct RoomContextView: View {
                             appCtx.connectionHistory.update(room: room)
                         }
                     }
+                })
+                .alert(isPresented: $viewModel.unableToConnect, content: {
+                    Alert(title: Text("Unable to Connect"),
+                            message: Text("There are no available seats to connect to a voice session. Please try again later."),
+                            dismissButton: .default(Text("OK")) {  })
                 })
     }
 }

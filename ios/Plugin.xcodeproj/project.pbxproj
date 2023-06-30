@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		03FC29A292ACC40490383A1F /* Pods_Plugin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B2A61DA5A1F2DD4F959604D /* Pods_Plugin.framework */; };
 		20C0B05DCFC8E3958A738AF2 /* Pods_PluginTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6753A823D3815DB436415E3 /* Pods_PluginTests.framework */; };
+		2967A4A82A3B672500F7AA77 /* CanConnectToVoiceSessionResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2967A4A72A3B672500F7AA77 /* CanConnectToVoiceSessionResult.swift */; };
 		29C0BE1429D63EBC007A4BD3 /* MainModalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29C0BE1329D63EBC007A4BD3 /* MainModalView.swift */; };
 		29C0BE1729D63ECB007A4BD3 /* ConfigModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29C0BE1629D63ECB007A4BD3 /* ConfigModel.swift */; };
 		29C0BE1C29D6568F007A4BD3 /* SecureStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29C0BE1929D6568F007A4BD3 /* SecureStore.swift */; };
@@ -39,6 +40,7 @@
 		68550ACAE8BDF79BF60F18B3 /* Device.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6855058D558D5ADD6C91BE59 /* Device.swift */; };
 		68550B2D6B3C1F03F2110B11 /* HeadsetPeripheral.swift in Sources */ = {isa = PBXBuildFile; fileRef = 685509847C1FD0F494D3EEF6 /* HeadsetPeripheral.swift */; };
 		68550B6983EAC1C273068592 /* Custom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68550215680A6BF7C263DA60 /* Custom.swift */; };
+		68550BE6359BF56DD0226695 /* Api.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68550226E07D8E6BA565A4AD /* Api.swift */; };
 		68550C933D4451572E6BD5D9 /* HorVStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68550B332DC1815F508CFCCB /* HorVStack.swift */; };
 		68550CA68A082A15B6992612 /* CustomObservableRoom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68550B10DC70296DD71A252A /* CustomObservableRoom.swift */; };
 		68550DB56B85B767385E11C3 /* RoomMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68550E7E84D74568F2DBB566 /* RoomMessage.swift */; };
@@ -56,6 +58,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2967A4A72A3B672500F7AA77 /* CanConnectToVoiceSessionResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanConnectToVoiceSessionResult.swift; sourceTree = "<group>"; };
 		29C0BE1329D63EBC007A4BD3 /* MainModalView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainModalView.swift; sourceTree = "<group>"; };
 		29C0BE1629D63ECB007A4BD3 /* ConfigModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConfigModel.swift; sourceTree = "<group>"; };
 		29C0BE1929D6568F007A4BD3 /* SecureStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecureStore.swift; sourceTree = "<group>"; };
@@ -81,6 +84,7 @@
 		5E23F77F099397094342571A /* Pods-Plugin.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Plugin.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Plugin/Pods-Plugin.debug.xcconfig"; sourceTree = "<group>"; };
 		685500FD21254E8A67AB43C5 /* Logging.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
 		68550215680A6BF7C263DA60 /* Custom.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Custom.swift; sourceTree = "<group>"; };
+		68550226E07D8E6BA565A4AD /* Api.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Api.swift; sourceTree = "<group>"; };
 		68550429D23079CE6D36DE06 /* ParticipantLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParticipantLayout.swift; sourceTree = "<group>"; };
 		6855049909FBBC43086DE229 /* RoomInfoModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RoomInfoModel.swift; sourceTree = "<group>"; };
 		6855052A145EE01FFC3B519E /* SelfSizingHostingController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelfSizingHostingController.swift; sourceTree = "<group>"; };
@@ -147,6 +151,7 @@
 				68550B10DC70296DD71A252A /* CustomObservableRoom.swift */,
 				68550E7E84D74568F2DBB566 /* RoomMessage.swift */,
 				685509847C1FD0F494D3EEF6 /* HeadsetPeripheral.swift */,
+				2967A4A72A3B672500F7AA77 /* CanConnectToVoiceSessionResult.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -154,6 +159,7 @@
 		29C0BE1829D65630007A4BD3 /* Support */ = {
 			isa = PBXGroup;
 			children = (
+				68550226E07D8E6BA565A4AD /* Api.swift */,
 				29C0BE1B29D6568F007A4BD3 /* Bundle.swift */,
 				29C0BE1A29D6568F007A4BD3 /* ConnectionHistory.swift */,
 				29C0BE1929D6568F007A4BD3 /* SecureStore.swift */,
@@ -489,8 +495,10 @@
 				6855045BA0BCE911ED183A35 /* DeviceManager.swift in Sources */,
 				685506A60D0287F946799972 /* Logging.swift in Sources */,
 				68550ACAE8BDF79BF60F18B3 /* Device.swift in Sources */,
+				2967A4A82A3B672500F7AA77 /* CanConnectToVoiceSessionResult.swift in Sources */,
 				68550B2D6B3C1F03F2110B11 /* HeadsetPeripheral.swift in Sources */,
 				68550682DA8DEE52ACF8B4A6 /* Audio.swift in Sources */,
+				68550BE6359BF56DD0226695 /* Api.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -21,6 +21,8 @@ public class ResgridPlugin: CAPPlugin {
         let defaultMic = call.getString("defaultMic") ?? ""
         let defaultSpeaker = call.getString("defaultSpeaker") ?? ""
         let roomsJS = call.getArray("rooms") ?? []
+        let apiUrl = call.getString("apiUrl") ?? ""
+        let canConnectToVoiceApiToken = call.getString("canConnectToVoiceApiToken") ?? ""
 
         var rooms: [RoomInfoModel] = []
         if (roomsJS != nil && roomsJS.count > 0) {
@@ -34,7 +36,8 @@ public class ResgridPlugin: CAPPlugin {
         }
 
         self.configModel = ConfigModel(url: url, token: token, type: type, rooms: rooms,
-                title: title, defaultMic: defaultMic, defaultSpeaker: defaultSpeaker);
+                title: title, defaultMic: defaultMic, defaultSpeaker: defaultSpeaker, apiUrl: apiUrl,
+                canConnectToVoiceApiToken: canConnectToVoiceApiToken);
 
         call.resolve()
     }

@@ -8,8 +8,13 @@ class ConfigModel: ObservableObject {
     var title: String
     var defaultMic: String
     var defaultSpeaker: String
+    var apiUrl: String
+    var canConnectToVoiceApiToken: String
+
+    @Published var unableToConnect: Bool = false
     
-    init(url: String, token: String, type: Int, rooms: [RoomInfoModel], title: String, defaultMic: String, defaultSpeaker: String) {
+    init(url: String, token: String, type: Int, rooms: [RoomInfoModel], title: String, defaultMic: String,
+         defaultSpeaker: String, apiUrl: String, canConnectToVoiceApiToken: String) {
         self.url = url
         self.token = token
         self.type = type
@@ -17,5 +22,7 @@ class ConfigModel: ObservableObject {
         self.title = title;
         self.defaultMic = defaultMic;
         self.defaultSpeaker = defaultSpeaker;
+        self.apiUrl = apiUrl
+        self.canConnectToVoiceApiToken = canConnectToVoiceApiToken
     }
 }
