@@ -1,6 +1,6 @@
 {
   "name": "capacitor-plugin-resgrid",
-  "version": "0.0.1",
+  "version": "1.0.1",
   "description": "Capacitor plugin for interacting with parts of the Resgrid system",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",
