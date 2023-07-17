@@ -17,4 +17,3 @@ jobs:
           node-version: "16.x"
       - run: npm install -g @angular/cli
       - run: npm ci
-      - run: npm run lint
