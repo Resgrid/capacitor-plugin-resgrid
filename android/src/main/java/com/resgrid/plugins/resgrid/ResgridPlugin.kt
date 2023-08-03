@@ -125,13 +125,16 @@ class ResgridPlugin : Plugin() {
                     "BLUETOOTH_SCAN",
                     "BLUETOOTH_CONNECT",
                     "BLUETOOTH_SCAN",
+                    "MICROPHONE",
                 )
             } else {
                 arrayOf(
                     "BLUETOOTH_SCAN",
                     "BLUETOOTH_CONNECT",
-                    "ACCESS_FINE_LOCATION",
                     "BLUETOOTH_SCAN",
+                    "ACCESS_COARSE_LOCATION",
+                    "ACCESS_FINE_LOCATION",
+                    "MICROPHONE",
                 )
             }
         } else {
