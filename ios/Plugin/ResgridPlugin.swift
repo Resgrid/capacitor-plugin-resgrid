@@ -96,8 +96,10 @@ public class ResgridPlugin: CAPPlugin {
                     }
                     
                     self.roomViewController?.view.frame = rootViewController.view.bounds
+                    self.roomViewController?.view.tag = 325973359 // rand
+                    self.roomViewController?.view.backgroundColor = .black
                     
-                    bridge.viewController?.present(self.roomViewController!, animated: true)
+                    bridge.viewController?.present(self.roomViewController!, animated: true, completion: nil)
                 } else {
                     if (self.configModel != nil && self.configModel?.type == 1) {
                         self.roomViewController?.modalPresentationStyle = .fullScreen
@@ -109,8 +111,10 @@ public class ResgridPlugin: CAPPlugin {
                     }
 
                     self.roomViewController?.view.frame = rootViewController.view.bounds
+                    self.roomViewController?.view.tag = 325973359 // rand
+                    self.roomViewController?.view.backgroundColor = .black
 
-                    bridge.viewController?.present(self.roomViewController!, animated: true)
+                    bridge.viewController?.present(self.roomViewController!, animated: true, completion: nil)
                 }
             }
         }

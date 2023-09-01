@@ -49,7 +49,7 @@ struct AudioRoomView: View {
 
                                             }
                                         })
-                                        
+
                                     }) {
                                         Label("Connect", systemImage: "plus")
                                     }
@@ -76,10 +76,8 @@ struct AudioRoomView: View {
 
                             Divider()
 
-                            #if os(iOS)
                             AVRoutePicker()
                             Divider()
-                            #endif
 
                             // Disconnect
                             Button(action: {
@@ -94,7 +92,7 @@ struct AudioRoomView: View {
                         }
                     }
                     .onAppear {
-                        
+
                         Timer.scheduledTimer(withTimeInterval: 3, repeats: false) { _ in
                             DispatchQueue.main.async {
                                 withAnimation {
@@ -105,7 +103,7 @@ struct AudioRoomView: View {
                     }
         }
     }
-    
+
     func connectToHeadset() {
         deviceManager!.startScanning(
                 [HeadsetPeripheral.AINA_HEADSET_SERVICE],
@@ -115,11 +113,11 @@ struct AudioRoomView: View {
                 false,
                 30,
                 bleScanComplete,
-                { (_, _, _) -> Void in}
+                { (_, _, _) -> Void in }
         )
     }
 
-    func bleScanComplete (_ success: Bool, _ message: String) -> Void {
+    func bleScanComplete(_ success: Bool, _ message: String) -> Void {
         // selected a device
         if success {
             guard let device = deviceManager!.getDevice(message) else {
@@ -127,35 +125,35 @@ struct AudioRoomView: View {
             }
             log("Scanning complete, attempting to connect.")
 
-            device.setOnConnected(CONNECTION_TIMEOUT, {(success2, message2) -> Void in
+            device.setOnConnected(CONNECTION_TIMEOUT, { (success2, message2) -> Void in
                 if success2 {
                     log("Connected to device")
-                    
+
                     device.setNotifications(
-                        HeadsetPeripheral.AINA_HEADSET_SERVICE,
-                        HeadsetPeripheral.AINA_HEADSET_SERVICE_PROP,
-                        true,
-                        processBluetoothEvents,
-                        CONNECTION_TIMEOUT,
-                        {(success, value) -> Void in
-                                        if success {
-                                            //call.resolve()
-                                        } else {
-                                            //call.reject(value)
-                                        }
-                                    }                    )
-                    
+                            HeadsetPeripheral.AINA_HEADSET_SERVICE,
+                            HeadsetPeripheral.AINA_HEADSET_SERVICE_PROP,
+                            true,
+                            processBluetoothEvents,
+                            CONNECTION_TIMEOUT,
+                            { (success, value) -> Void in
+                                if success {
+                                    //call.resolve()
+                                } else {
+                                    //call.reject(value)
+                                }
+                            })
+
                     // only resolve after service discovery
                     //call.resolve()
                 } else {
                     //call.reject(message)
                 }
             })
-            self.deviceManager?.setOnDisconnected(device, {(_, _) -> Void in
+            self.deviceManager?.setOnDisconnected(device, { (_, _) -> Void in
                 //let key = "disconnected|\(device.getId())"
                 //self.notifyListeners(key, data: nil)
             })
-            self.deviceManager?.connect(device, CONNECTION_TIMEOUT, {(success3, message3) -> Void in
+            self.deviceManager?.connect(device, CONNECTION_TIMEOUT, { (success3, message3) -> Void in
                 if success3 {
                     log("Connected to peripheral. Waiting for service discovery.")
                 } else {
@@ -170,11 +168,11 @@ struct AudioRoomView: View {
 
         }
     }
-    
+
     func processBluetoothEvents(_ success: Bool, _ message: String) -> Void {
         if success {
             log("ble message: " + message)
-            
+
             if (message == "00") {
                 stopTransmitting()
             } else if (message == "04") {
@@ -182,7 +180,7 @@ struct AudioRoomView: View {
             }
         }
     }
-    
+
     func stopTransmitting() {
         if room.room.localParticipant?.isMicrophoneEnabled() == true {
             let audio = Audio()
@@ -190,7 +188,7 @@ struct AudioRoomView: View {
             room.toggleMicrophoneEnabled()
         }
     }
-    
+
     func startTransmitting() {
         if room.room.localParticipant?.isMicrophoneEnabled() == false {
             let audio = Audio()
@@ -198,7 +196,7 @@ struct AudioRoomView: View {
             room.toggleMicrophoneEnabled()
         }
     }
-    
+
     func toggleTransmitting() {
         if room.room.localParticipant?.isMicrophoneEnabled() == true {
             stopTransmitting()
@@ -206,7 +204,7 @@ struct AudioRoomView: View {
             startTransmitting()
         }
     }
-    
+
     func sortedParticipants() -> [ObservableParticipant] {
         room.allParticipants.values.sorted { p1, p2 in
             if p1.participant is LocalParticipant {
@@ -220,80 +218,69 @@ struct AudioRoomView: View {
     }
 
     func content(geometry: GeometryProxy) -> some View {
-        VStack(alignment: .center) {
-            if showConnectionTime {
-                Text("Connected (\([room.room.serverRegion, "\(String(describing: room.room.connectStopwatch.total().rounded(to: 2)))s"].compactMap { $0 }.joined(separator: ", ")))")
+            VStack(alignment: .center) {
+                if showConnectionTime {
+                    Text("Connected (\([room.room.serverRegion, "\(String(describing: room.room.connectStopwatch.total().rounded(to: 2)))s"].compactMap { $0 }.joined(separator: ", ")))")
                         .multilineTextAlignment(.center)
                         .foregroundColor(.white)
                         .padding()
-            }
-
-            if case .connecting = room.room.connectionState {
-                Text("Re-connecting...")
+                }
+                
+                if case .connecting = room.room.connectionState {
+                    Text("Re-connecting...")
                         .multilineTextAlignment(.center)
                         .foregroundColor(.white)
                         .padding()
-            }
-            Text("Current Channel: \(appCtx.selectedChannel!.name)")
+                }
+                Text("Current Channel: \(appCtx.selectedChannel!.name)")
                     .multilineTextAlignment(.center)
                     .foregroundColor(.white)
                     .padding()
-
-            ZStack {
-                RoundedRectangle(cornerRadius: 10)
+                
+                ZStack {
+                    RoundedRectangle(cornerRadius: 10)
                         .fill(isLongPressing ? Color.red : Color.blue)
                         .frame(width: 260, height: 80).scaleEffect(isLongPressing ? 1.3 : 1)
                         .animation(.easeOut(duration: 0.2), value: isLongPressing)
-                Text(isLongPressing ? "Transmitting" : "Push and Hold To Talk")
+                    Text(isLongPressing ? "Transmitting" : "Push and Hold To Talk")
                         .foregroundColor(.white)
-            }
-                    .simultaneousGesture(
-                            DragGesture(minimumDistance: 0)
-                                    .onChanged({ _ in
-                                        if isLongPressing == false {
-                                            if (room.room.localParticipant != nil && !room.room.localParticipant!.isMicrophoneEnabled()) {
-                                                startTransmitting()
-                                            }
-                                        }
-                                        
-                                        isLongPressing = true
-                                    })
-                                    .onEnded({ _ in
-                                        isLongPressing = false
-
-                                        if (room.room.localParticipant != nil && room.room.localParticipant!.isMicrophoneEnabled()) {
-                                            stopTransmitting()
-                                        }
-
-                                    })
-                    )
-            Spacer()
-
-            HorVStack(axis: geometry.isTall ? .vertical : .horizontal, spacing: 0) {
-
-                Group {
-                    ParticipantLayout(sortedParticipants(), spacing: 0) { participant in
-                        ParticipantView(participant: participant,
-                                videoViewMode: appCtx.videoViewMode) { participant in
-                            room.focusParticipant = participant
-
-                        }
-                    }
-                }
-                        .frame(
-                                minWidth: 0,
-                                maxWidth: 1,
-                                minHeight: 0,
-                                maxHeight: 1
-                        )
-            }
-        }
-                .frame(
-                        minWidth: 0,
-                        maxWidth: .infinity,
-                        minHeight: 0,
-                        maxHeight: .infinity
+                }.simultaneousGesture(
+                    DragGesture(minimumDistance: 0)
+                        .onChanged({ _ in
+                            if isLongPressing == false {
+                                if (room.room.localParticipant != nil && !room.room.localParticipant!.isMicrophoneEnabled()) {
+                                    startTransmitting()
+                                }
+                            }
+                            
+                            isLongPressing = true
+                        })
+                        .onEnded({ _ in
+                            isLongPressing = false
+                            
+                            if (room.room.localParticipant != nil && room.room.localParticipant!.isMicrophoneEnabled()) {
+                                stopTransmitting()
+                            }
+                            
+                        })
                 )
-                .padding(5)
+                Spacer()
+                HorVStack(axis: geometry.isTall ? .vertical : .horizontal, spacing: 0) {
+                    Group {
+                        ParticipantLayout(sortedParticipants(), spacing: 0) { participant in
+                            ParticipantView(participant: participant,
+                                            videoViewMode: appCtx.videoViewMode) { participant in
+                                room.focusParticipant = participant
+                                
+                            }
+                        }
+                    }.frame(minWidth: 0, maxWidth: 1, minHeight: 0, maxHeight: 1)
+                }
+        }.frame(
+            minWidth: 0,
+            maxWidth: .infinity,
+            minHeight: 0,
+            maxHeight: .infinity)
+        
     }
 }

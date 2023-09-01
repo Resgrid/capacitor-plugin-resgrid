@@ -10,6 +10,7 @@ class ConfigModel: ObservableObject {
     var defaultSpeaker: String
     var apiUrl: String
     var canConnectToVoiceApiToken: String
+    //var frame: CGRect?
 
     @Published var unableToConnect: Bool = false
     

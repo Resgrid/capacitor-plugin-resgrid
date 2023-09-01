@@ -38,105 +38,92 @@ struct RoomContextView: View {
     }
 
     var body: some View {
-        ZStack(alignment: .top) {
-            Color.black.ignoresSafeArea()
-            if shouldShowRoomView {
-                if (self.viewModel.type == 1) {
-                    RoomView()
-                } else if (self.viewModel.type == 0) {
-                    AudioRoomView()
-                }
-            } else {
-                if roomCtx.room.room.connectionState == .disconnected() {
-                    VStack(alignment: .center) {
-                        Text("You are disconnected, select a channel to connect")
-                                .foregroundColor(.white).padding()
-                        Picker(selection: $appCtx.selectedChannel,
-                                label: Text("Selected Channel"),
-                                content: {
-                                    Text("Select Channel").tag(nil as RoomInfoModel?)
-                                    Divider()
-                                    ForEach(self.viewModel.rooms) { room in
-                                        Text(room.name).tag(room as RoomInfoModel?)
-                                    }
-                                })
-                                .padding().font(.headline)
-                        let action: () -> Void = {
-
-                            roomCtx.url = viewModel.url
-                            guard let selectedChannel = appCtx.selectedChannel else {
-                                return
-                            }
-                            roomCtx.token = selectedChannel.token
-
-                            Task {
-                            let api = ApiVoiceRequest(config: viewModel)
-                            self.viewModel.unableToConnect = false
-                            let data = await api.canUserConnectToSession();
-
-                           // api.canUserConnectToSession { (data) in
-                                if (data != nil && data.Data != nil && (data.Data!.CanConnect != nil && data.Data!.CanConnect!)) {
-                                    Task {
-                                        let room = try await roomCtx.connect()
-                                        appCtx.connectionHistory.update(room: room)
-                                    }
-                                } else {
-                                    self.viewModel.unableToConnect = true
-                                }
-                            //}
-
-                            /*api.canUserConnectToSession { (sessionResult) in
-                                    switch sessionResult {
-                                    case .success(let data):
-                                        if (data != nil && data.Data != nil && data.Data.CanConnect) {
-                                            Task {
-                                                let room = try await roomCtx.connect()
-                                                appCtx.connectionHistory.update(room: room)
-                                            }
-                                        }
-                                    case .failure(let error):
-                                        print(error.localizedDescription)
-                                    }
-                                }*/
-
-                            }
+        //GeometryReader { geometry in
+            ZStack(alignment: .leading) {
+                if shouldShowRoomView {
+                        if (self.viewModel.type == 1) {
+                            RoomView()
+                        } else if (self.viewModel.type == 0) {
+                            AudioRoomView()
                         }
-                        Button(action: action, label: {
-                            Text("Connect")
-                        })
-                                .cornerRadius(8).padding().buttonStyle(.borderedProminent)
-                        Spacer()
-                    }
                 } else {
-                    ProgressView().padding()
+                    if roomCtx.room.room.connectionState == .disconnected() {
+                        VStack(alignment: .center) {
+                            Text("You are disconnected, select a channel to connect")
+                                .foregroundColor(.white).padding()
+                            Picker(selection: $appCtx.selectedChannel,
+                                   label: Text("Selected Channel"),
+                                   content: {
+                                Text("Select Channel").tag(nil as RoomInfoModel?)
+                                Divider()
+                                ForEach(self.viewModel.rooms) { room in
+                                    Text(room.name).tag(room as RoomInfoModel?)
+                                }
+                            })
+                            .padding().font(.headline)
+                            let action: () -> Void = {
+                                
+                                roomCtx.url = viewModel.url
+                                guard let selectedChannel = appCtx.selectedChannel else {
+                                    return
+                                }
+                                roomCtx.token = selectedChannel.token
+                                
+                                Task {
+                                    let api = ApiVoiceRequest(config: viewModel)
+                                    self.viewModel.unableToConnect = false
+                                    let data = await api.canUserConnectToSession();
+                                    
+                                    // api.canUserConnectToSession { (data) in
+                                    if (data != nil && data.Data != nil && (data.Data!.CanConnect != nil && data.Data!.CanConnect!)) {
+                                        Task {
+                                            let room = try await roomCtx.connect()
+                                            appCtx.connectionHistory.update(room: room)
+                                        }
+                                    } else {
+                                        self.viewModel.unableToConnect = true
+                                    }
+                                    //}
+                                    
+                                    /*api.canUserConnectToSession { (sessionResult) in
+                                     switch sessionResult {
+                                     case .success(let data):
+                                     if (data != nil && data.Data != nil && data.Data.CanConnect) {
+                                     Task {
+                                     let room = try await roomCtx.connect()
+                                     appCtx.connectionHistory.update(room: room)
+                                     }
+                                     }
+                                     case .failure(let error):
+                                     print(error.localizedDescription)
+                                     }
+                                     }*/
+                                    
+                                }
+                            }
+                            Button(action: action, label: {
+                                Text("Connect")
+                            })
+                            .cornerRadius(8).padding().buttonStyle(.borderedProminent)
+                            Spacer()
+                        }
+                    } else {
+                        ProgressView().padding()
+                    }
                 }
-            }
-        }
-                .environment(\.colorScheme, .dark)
+            //}.padding(.horizontal, 20).scaledToFill()
+            //        .frame(maxWidth: .infinity, maxHeight: .infinity)
+            //        .aspectRatio(16.0 / 9.0, contentMode: .fit)
+            
+        }//.padding(.horizontal, 20)
+            .environment(\.colorScheme, .dark)
                 .foregroundColor(Color.white)
                 .environmentObject(appCtx)
                 .environmentObject(roomCtx)
                 .environmentObject(roomCtx.room)
                 .onAppear(perform: {
                     roomCtx.url = viewModel.url
-
-                    //if (appCtx.selectedChannel != nil) {
-                    //    roomCtx.token = viewModel.token
-                    //} else {
-                    //    roomCtx.token = viewModel.token
-                    //}
-
-                    //Task {
-                    //    let room = try await roomCtx.connect()
-                    //    appCtx.connectionHistory.update(room: room)
-                    //}
                 })
-                //.onDisappear {
-                //    print("\(String(describing: type(of: self))) onDisappear")
-                //    Task {
-                //        try await roomCtx.disconnect()
-                //    }
-                //}
                 .onOpenURL(perform: { url in
 
                     guard let urlComponent = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
