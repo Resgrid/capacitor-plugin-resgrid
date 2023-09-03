@@ -14,7 +14,7 @@ Pod::Spec.new do |s|
   s.resources = ['ios/Plugin/Resources/*.mp3']
   s.ios.deployment_target  = '15.0'
   s.dependency 'Capacitor'
-  s.dependency 'LiveKitClient', '= 1.0.8'
+  s.dependency 'LiveKitClient', '= 1.1.0'
   s.dependency 'KeychainAccess'
   s.dependency 'SFSafeSymbols', '~> 4.1.1'
   s.dependency 'SwiftProtobuf', '~> 1.0'
