@@ -73,7 +73,8 @@ class ResgridPlugin : Plugin() {
 
     @PluginMethod
     public fun start(call: PluginCall) {
-
+        configData = ConfigData()
+        
         val context: Context = activity.applicationContext;
         val activity: Activity = activity;
 
