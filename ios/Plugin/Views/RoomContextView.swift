@@ -30,11 +30,13 @@ struct RoomContextView: View {
                     .joined(separator: " ")
         }
 
-        return "LiveKit"
+        return "Resgrid Voice"
     }
 
     init(viewModel: ConfigModel) {
         self._viewModel = StateObject(wrappedValue: viewModel)
+        sync.value = Preferences()
+        sync.sync()
     }
 
     var body: some View {
