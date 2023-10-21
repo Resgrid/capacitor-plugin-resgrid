@@ -15,6 +15,8 @@ struct AudioRoomView: View {
     @State private var screenPickerPresented = false
     @State private var showConnectionTime = true
     @State var isLongPressing = false
+    @State var isDeviceConnected = false
+    @State var deviceId = "";
 
     @State private var deviceManager: DeviceManager?
 
@@ -28,8 +30,7 @@ struct AudioRoomView: View {
         NavigationView {
             GeometryReader { geometry in
                 content(geometry: geometry)
-            }
-                    .toolbar {
+            }.toolbar {
                         ToolbarItemGroup(placement: .navigationBarLeading) {
                             Text("(\(room.room.remoteParticipants.count)) ")
 
@@ -38,7 +39,9 @@ struct AudioRoomView: View {
                             // Select Headset
                             Menu {
                                 Section {
-                                    Button(action: {}) {
+                                    Button(action: {
+                                        disconnectHeadset()
+                                    }) {
                                         Label("Disconnect", systemImage: "minus")
                                     }
                                     Button(action: {
@@ -46,7 +49,7 @@ struct AudioRoomView: View {
                                             if success {
                                                 connectToHeadset()
                                             } else {
-
+                                                isDeviceConnected = false
                                             }
                                         })
 
@@ -55,7 +58,8 @@ struct AudioRoomView: View {
                                     }
                                 }
                             } label: {
-                                Label("Headset", systemImage: "megaphone")
+                                Image(systemSymbol: .phoneFill)
+                                    .renderingMode(isDeviceConnected ? .original : .template)
                             }
 
                             Divider()
@@ -103,7 +107,23 @@ struct AudioRoomView: View {
                     }
         }
     }
-
+    
+    func disconnectHeadset() {
+        guard let device = deviceManager!.getDevice(deviceId) else {
+            return
+        }
+        
+        deviceManager!.disconnect(device, CONNECTION_TIMEOUT, bleDisconnectComplete)
+        
+    }
+    
+    func bleDisconnectComplete(_ success: Bool, _ message: String) -> Void {
+        if success {
+            log("Disconnected from device")
+            isDeviceConnected = false
+        }
+    }
+    
     func connectToHeadset() {
         deviceManager!.startScanning(
                 [HeadsetPeripheral.AINA_HEADSET_SERVICE],
@@ -124,11 +144,13 @@ struct AudioRoomView: View {
                 return
             }
             log("Scanning complete, attempting to connect.")
-
+            deviceId = message
+            
             device.setOnConnected(CONNECTION_TIMEOUT, { (success2, message2) -> Void in
                 if success2 {
                     log("Connected to device")
-
+                    isDeviceConnected = true
+                    
                     device.setNotifications(
                             HeadsetPeripheral.AINA_HEADSET_SERVICE,
                             HeadsetPeripheral.AINA_HEADSET_SERVICE_PROP,
@@ -147,6 +169,7 @@ struct AudioRoomView: View {
                     //call.resolve()
                 } else {
                     //call.reject(message)
+                    isDeviceConnected = false
                 }
             })
             self.deviceManager?.setOnDisconnected(device, { (_, _) -> Void in
@@ -165,7 +188,7 @@ struct AudioRoomView: View {
             //let bleDevice: BleDevice = self.getBleDevice(device)
             //call.resolve(bleDevice)
         } else {
-
+            isDeviceConnected = false
         }
     }
 
@@ -173,9 +196,11 @@ struct AudioRoomView: View {
         if success {
             log("ble message: " + message)
 
-            if (message == "00") {
+            let trimmedMessage = message.trimmingCharacters(in: .whitespacesAndNewlines)
+            
+            if (trimmedMessage == "00") {
                 stopTransmitting()
-            } else if (message == "04") {
+            } else if (trimmedMessage == "04" || trimmedMessage == "01") {
                 startTransmitting()
             }
         }
