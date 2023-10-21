@@ -112,7 +112,7 @@ class BottomAudioView(private val configData: ConfigData, private val audioView:
 
     override fun onCancel(dialog: DialogInterface) {
         super.onCancel(dialog)
-        Logger.info("Klarna KCO plugin: Cancel the bottom sheet dialog")
+        Logger.info("Resgrid plugin: Cancel the bottom sheet dialog")
         //kco.notifyWeb("closed", JSObject())
     }
 
