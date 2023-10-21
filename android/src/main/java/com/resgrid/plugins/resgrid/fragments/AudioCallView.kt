@@ -184,9 +184,19 @@ class AudioCallFragment: Fragment(R.layout.audio_call_activity)
         micButton.setOnClickListener { viewModel.setMicEnabled(!viewModel.micEnabled.value!!) }
         viewModel.micEnabled.observe(this) { enabled ->
             micButton.setImageResource(
-                    if (enabled) R.drawable.outline_mic_24
-                    else R.drawable.outline_mic_off_24
+                    if (enabled) {
+                        R.drawable.outline_mic_24
+                    }
+                    else {
+                        R.drawable.outline_mic_off_24
+                    }
             )
+
+            if (enabled) {
+                micButton.setColorFilter(getResources().getColor(R.color.colorTransmitting));
+            } else {
+                micButton.setColorFilter(getResources().getColor(R.color.colorWhite));
+            }
         }
 
         val exitButton = view.findViewById(R.id.exit) as ImageView
@@ -195,6 +205,13 @@ class AudioCallFragment: Fragment(R.layout.audio_call_activity)
         val bluetoothButton = view.findViewById(R.id.bluetooth_menu) as ImageView
         bluetoothButton.setOnClickListener {
             showBluetoothDeviceDialogFrag(viewModel)
+        }
+        viewModel.headsetConnected.observe(this) { connected ->
+            if (connected) {
+                bluetoothButton.setColorFilter(getResources().getColor(R.color.colorPrimary));
+            } else {
+                bluetoothButton.setColorFilter(getResources().getColor(R.color.colorWhite));
+            }
         }
     }
 

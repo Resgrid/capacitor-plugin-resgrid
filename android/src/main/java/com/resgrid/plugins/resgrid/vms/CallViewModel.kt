@@ -116,6 +116,9 @@ class CallViewModel(
     private val mutablePermissionAllowed = MutableStateFlow(true)
     val permissionAllowed = mutablePermissionAllowed.hide()
 
+    private val mutableHeadsetConnected = MutableLiveData(false)
+    val headsetConnected = mutableHeadsetConnected.hide()
+
     val preferences = Preferences(application.applicationContext, PreferencesConfiguration.DEFAULTS!!);
 
     init {
@@ -285,6 +288,12 @@ class CallViewModel(
         }
     }
 
+    fun setHeadsetConnected(connected: Boolean) {
+        viewModelScope.launch {
+            mutableHeadsetConnected.postValue(connected)
+        }
+    }
+
     fun setCameraEnabled(enabled: Boolean) {
         viewModelScope.launch {
             room.localParticipant.setCameraEnabled(enabled)
@@ -392,6 +401,8 @@ class CallViewModel(
         newDevice!!.connect(10000) { response ->
             run {
                 if (response.success) {
+                    setHeadsetConnected(true);
+
                     newDevice!!.setNotifications(UUID.fromString("127FACE1-CB21-11E5-93D0-0002A5D5C51B"), UUID.fromString("127FBEEF-CB21-11E5-93D0-0002A5D5C51B"), true, { response ->
                         run {
                             if (response != null) {
@@ -400,7 +411,7 @@ class CallViewModel(
                                     stopTransmittingSound?.seekTo(0)
 
                                     setMicEnabled(false)
-                                } else if (response.value.trim() == "01") {
+                                } else if (response.value.trim() == "01" || response.value.trim() == "04") {
                                     startTransmittingSound?.start()
                                     startTransmittingSound?.seekTo(0)
 
@@ -431,13 +442,14 @@ class CallViewModel(
                 run {
                     newDevice = null
                     preferences.clear()
+                    setHeadsetConnected(false)
                 }
             }
         }
     }
 
     private fun onDisconnect(deviceId: String) {
-
+        setHeadsetConnected(false)
     }
 
     // Debug functions
